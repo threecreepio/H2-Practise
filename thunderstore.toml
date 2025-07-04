@@ -1,0 +1,39 @@
+[config]
+schemaVersion = "0.1.0"
+
+[package]
+namespace = "Threecreepio"
+name = "Practise"
+versionNumber = "0.1.0"
+description = "Adds some practise functionality"
+websiteUrl = "https://github.com/threecreepio/H2-Practise"
+containsNsfwContent = false
+
+[package.dependencies]
+SGG_Modding-ENVY = "1.2.0"
+SGG_Modding-ModUtil = "4.0.1"
+SGG_Modding-SJSON = "1.0.0"
+
+[build]
+icon = "./icon.png"
+readme = "./README.md"
+outdir = "./build"
+
+[[build.copy]]
+source = "./CHANGELOG.md"
+target = "./CHANGELOG.md"
+
+[[build.copy]]
+source = "./LICENSE"
+target = "./LICENSE"
+
+[[build.copy]]
+source = "./src"
+target = "./"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = [ "hades-ii" ]
+
+[publish.categories]
+hades-ii = [ "libraries", "mods" ]

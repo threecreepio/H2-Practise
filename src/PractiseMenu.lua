@@ -1,0 +1,99 @@
+import "./src/PractiseStoredState.lua"
+import './src/SavedBuilds.lua'
+import './src/CurrentBuild.lua'
+import './src/Encounters.lua'
+
+local started = false
+local function sharedStart()
+    if started == true then return true end
+    if GameState == nil then return false end
+    local createStateIfNeeded = import "./src/PractiseStoredState.lua"
+    createStateIfNeeded()
+    started = true
+    return true
+end
+
+ModUtil.Path.Wrap("RequestSave", function( base, args )
+    PractiseStoredState.PendingCheckpoint = false
+    base( args )
+end)
+
+local isOpen = false
+local openPanel = nil
+local function TabItem(name)
+    local open = rom.ImGui.BeginTabItem(name)
+    if openPanel == nil then open = true end
+    local isOpening = open and (openPanel ~= name or isOpen == false)
+    if open then
+        openPanel = name
+        isOpen = true
+    end
+    return open, isOpening
+end
+
+function PractisePerFrame()
+    if sharedStart() == false then return end
+
+    if PractiseStoredState.PendingCheckpoint then
+        if CurrentHubRoom ~= nil then
+	        RequestSave({ DevSaveName = CreateDevSaveName( CurrentRun, { StartNextMap = deathMap, PostDeath = true, } ), })
+            PractiseStoredState.PendingCheckpoint = false
+        end
+    end
+
+   RemoveInputBlock({ Name = "Practise" })
+    if rom.gui.is_open() then
+        PractiseStoredState.Blocking = not IsInputAllowed()
+        AddInputBlock({ Name = "Practise" })
+        PractiseMenu()
+    else
+        isOpen = false
+    end
+
+end
+
+function PractiseMenu()
+    local ImGui = rom.ImGui
+    ImGui.SetNextWindowSizeConstraints(500, 250, 2048, 2048)
+    ImGui.SetNextWindowSize(600, 800, rom.ImGuiCond.FirstUseEver)
+    if ImGui.Begin("Threecreepio Practise") then
+
+        if PractiseStoredState.PendingCheckpoint then
+            if ImGui.Button("Return to the Crossroads to save your changes") then
+                thread(LoadMap, { Name = "Hub_PreRun", ResetBinks = true })
+            end
+        end
+        
+        ImGui.BeginTabBar("ThreecreepioPractise")
+
+        local open, appearing = TabItem("Saved Builds")
+        if open then
+            local w, h = ImGui.GetContentRegionAvail()
+            ImGui.BeginChild("Content", w, h, false)
+            PractiseSavedBuildsMenu(appearing)
+            ImGui.EndChild()
+            ImGui.EndTabItem()
+        end
+        
+        local open, appearing = TabItem("Build")
+        if open then
+            local w, h = ImGui.GetContentRegionAvail()
+            ImGui.BeginChild("Content", w, h, false)
+            PractiseCurrentBuildMenu(appearing)
+            ImGui.EndChild()
+            ImGui.EndTabItem()
+        end
+
+        local open, appearing = TabItem("Encounters")
+        if open then
+            local w, h = ImGui.GetContentRegionAvail()
+            ImGui.BeginChild("Content", w, h, false)
+            PractiseEncountersMenu(appearing)
+            ImGui.EndChild()
+            ImGui.EndTabItem()
+        end
+
+        ImGui.EndTabBar()
+        ImGui.End()
+    end
+end

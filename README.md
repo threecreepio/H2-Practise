@@ -4,6 +4,8 @@ https://github.com/threecreepio/H2-Practise
 
 This is a practise rom that lets you easily test out different builds, and jump to different encounters.
 
+Let me know if you notice any issues, either on github, or I'm "threecreepio" on discord!
+
 ## Usage
 
 When you start Hades, press "Insert" to enter the Lua menu.

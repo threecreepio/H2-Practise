@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Fixed some of the coloring of traits and gods
+- Made the trait requirement lists nicer looking
+- Changed the savestates to be base64 encoded
+
 ## [0.1.1] - 2025-07-04
 
 - Fixed traits getting removed that shouldn't have been

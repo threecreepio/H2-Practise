@@ -19,10 +19,21 @@ end
 
 local rarities = {"Common", "Rare", "Epic", "Heroic", "Duo", "Legendary"}
  
+local traitGods = {}
+
 local cache = clearCache()
 
+local function godNameColor(godName)
+    local clr = nil
+    if godName == "Ares" then clr = Color.AresDamageLight
+    elseif godName == "Apollo" then clr = Color.ApolloDamageLight
+    else clr = Color[tostring(godName) .. "Damage"] or Color[tostring(godName) .. "Voice"] or { 255, 255, 255, 255 }
+    end
+    return utils.toImGuiColor(clr)
+end
+
 local function traitNameColor(traitName, rarity, isValid)
-    local colors = { 1, 1, 1, 1 }
+    local colors = { 1, 1, 1, 0.8 }
     local hasRequirements = TraitRequirements[traitName] ~= nil
 
     if isValid == false then
@@ -174,71 +185,61 @@ end
 
 local function describeRequirements(traitName)
     local ImGui = rom.ImGui
+    local function makeDependentTable(name, options)
+        ImGui.BeginTable(name, 2)
+        ImGui.TableSetupColumn("God", rom.ImGuiTableColumnFlags.WidthFixed, 90.0)
+        ImGui.TableSetupColumn("Boon")
+        ImGui.TableHeadersRow()
+        
+		for n, dependentTraitName in ipairs(options) do
+            local colors = { 1, 1, 1, 1 }
+            if HeroHasTrait(dependentTraitName) then
+                colors = { 0, 1, 0, 1 }
+            end
+            local godColor = godNameColor(traitGods[dependentTraitName])
+            ImGui.TableNextRow()
+            ImGui.TableNextColumn()
+            ImGui.TextColored(
+                godColor[1], godColor[2], godColor[3], godColor[4],
+                traitGods[dependentTraitName] or ""
+            )
+            ImGui.TableNextColumn()
+            ImGui.TextColored(
+                colors[1], colors[2], colors[3], colors[4],
+                PractiseTexts.Trait[dependentTraitName] or dependentTraitName
+            )
+		end
+        ImGui.EndTable()
+    end
 	local valid = false
 	local dependencyTable = TraitRequirements[traitName]
 	if dependencyTable.OneOf ~= nil then
         ImGui.Text("Requires One Of:")
-		for n, dependentTraitName in ipairs(dependencyTable.OneOf) do
-            if n % 4 ~= 1 and n > 1 then
-                ImGui.SameLine()
-            end
-            local colors = { 1, 1, 1, 1 }
-            if HeroHasTrait(dependentTraitName) then
-                colors = { 0, 1, 0, 1 }
-            end
-            ImGui.TextColored(
-                colors[1], colors[2], colors[3], colors[4],
-                string.format("'%s'", PractiseTexts.Trait[dependentTraitName] or dependentTraitName)
-            )
-		end
+        makeDependentTable("RequiresOneOf", dependencyTable.OneOf)
 	end
 
+
 	if dependencyTable.TwoOf ~= nil then
-        ImGui.Text("Requires One Of:")
-		for n, dependentTraitName in ipairs(dependencyTable.TwoOf) do
-            if n % 4 ~= 1 and n > 1 then
-                ImGui.SameLine()
-            end
-            local colors = { 1, 1, 1, 1 }
-            if HeroHasTrait(dependentTraitName) then
-                colors = { 0, 1, 0, 1 }
-            end
-            ImGui.TextColored(
-                colors[1], colors[2], colors[3], colors[4],
-                string.format("'%s'", PractiseTexts.Trait[dependentTraitName] or dependentTraitName)
-            )
-		end
+        ImGui.Text("Requires Two Of:")
+        makeDependentTable("RequiresTwoOf", dependencyTable.TwoOf)
 	end
 
 	if not valid and dependencyTable.OneFromEachSet ~= nil then
 		valid = true
+        ImGui.Text("Requires One Of Each:")
+        local line_height = ImGui.GetTextLineHeight() + 4
 		for i, traitSet in ipairs(dependencyTable.OneFromEachSet) do
-            if i == 1 then
-                ImGui.Text("Requires One Of:")
-            else
-                ImGui.Dummy(0, 0)
-                ImGui.Text("And One Of:")
-            end
-			for n, dependentTraitName in ipairs(traitSet) do
-                if n % 4 ~= 1 and n > 1 then
-                    ImGui.SameLine()
-                end
-                local colors = { 1, 1, 1, 1 }
-                if HeroHasTrait(dependentTraitName) then
-                    colors = { 0, 1, 0, 1 }
-                end
-                ImGui.TextColored(
-                    colors[1], colors[2], colors[3], colors[4],
-                    string.format("'%s'", PractiseTexts.Trait[dependentTraitName] or dependentTraitName)
-                )
-			end
+            if i > 1 then ImGui.SameLine() end
+            ImGui.BeginChild("C_" .. tostring(i), 250, line_height * (1 + #traitSet), false)
+            makeDependentTable("RequiresOneOf_" .. tostring(i), traitSet)
+            ImGui.EndChild()
 		end
 	end
 end
 
 local iconText = import './src/icon_to_text.lua'
 
-local function showTraitTooltip(traitName, rarity, stacks)
+local function showTraitTooltip(traitName, rarity, stacks, showRequirements)
     local ImGui = rom.ImGui
     local traitData = TraitData[traitName]
     ImGui.BeginTooltip()
@@ -256,7 +257,7 @@ local function showTraitTooltip(traitName, rarity, stacks)
     local colors = traitNameColor(traitName, rarity, nil)
     ImGui.TextColored(
         colors[1], colors[2], colors[3], colors[4],
-        PractiseTexts.Trait[traitName] or traitName
+        utils.deformat(PractiseTexts.Trait[traitName] or traitName)
     )
 
     if stacks ~= nil and stacks > 1 then
@@ -314,7 +315,7 @@ local function showTraitTooltip(traitName, rarity, stacks)
         ImGui.EndTable()
     end
 
-    if TraitRequirements[traitName] ~= nil then
+    if TraitRequirements[traitName] ~= nil and showRequirements ~= false then
         ImGui.Dummy(0, 0)
         describeRequirements(traitName)
     end
@@ -341,14 +342,12 @@ local function makeRaritySelect(traitName, currentRarity, stacks)
             if traitRarities[rarity] ~= nil then
                 if ImGui.Selectable(rarity, currentRarity == rarity) then
                     if rarity ~= currentRarity then
-                        -- add trait!
-                        -- applyTrait(traitName, rarity, stacks or 1)
                         changed = true
                         result = rarity
                     end
                 end
                 if ImGui.IsItemHovered() then
-                    showTraitTooltip(traitName, rarity, stacks or 1)
+                    showTraitTooltip(traitName, rarity, stacks or 1, false)
                 end
             end
         end
@@ -429,7 +428,7 @@ local function makeTraitSelect(traitName)
                         end
                     end
                     if ImGui.IsItemHovered() then
-                        showTraitTooltip(traitName, currentRarity, i)
+                        showTraitTooltip(traitName, currentRarity, i, false)
                     end
                 end
                 ImGui.EndCombo()
@@ -447,6 +446,26 @@ local function getGodTraits(godName)
             result[#result + 1] = traitName
         end
     end
+    local scoring = { Melee = 1, Secondary = 2, Ranged = 3, Rush = 4, Mana = 5, Legendary = 6, Misc = 7, Duo = 8 }
+    table.sort(result, function (aName, bName)
+        function getScore(name)
+            local traitInfo = TraitData[name]
+            if scoring[traitInfo.Slot] then
+                return scoring[traitInfo.Slot]
+            end
+            if traitInfo.IsDuoBoon then
+                return scoring.Duo
+            end
+            if traitInfo.RarityLevels and traitInfo.RarityLevels.Legendary then
+                return scoring.Legendary
+            end
+            return scoring.Misc
+        end
+        local a = getScore(aName)
+        local b = getScore(bName)
+        if a == b then return aName < bName end
+        return a < b
+    end)
     return result
 end
 
@@ -561,8 +580,10 @@ local function makeSpellTable()
 
         if valid then
             ImGui.TableNextColumn()
+            if ActiveScreens.TalentScreen then ImGui.BeginDisabled() end
             local changed, newRarity = makeRaritySelect(traitName, currentRarity, 1)
             if changed then applySpell(spellData, newRarity) end
+            if ActiveScreens.TalentScreen then ImGui.EndDisabled() end
 
             ImGui.TableNextColumn()
             if hasSpell then
@@ -596,8 +617,8 @@ end
 
 local openedPanel = nil
 
-local function panel(name, currentPanel, color)
-    local clr = utils.toImGuiColor(Color[color] or { 255, 255, 255, 255 })
+local function panel(name, currentPanel)
+    local clr = godNameColor(name)
 
     rom.ImGui.Dummy(0, 0)
     local isOpen = name == currentPanel
@@ -636,7 +657,7 @@ local function getBoonGivers()
         { Name = "Athena",          Traits = UnitSetData.NPC_Athena.NPC_Athena_01.Traits },
         { Name = "Artemis",         Traits = UnitSetData.NPC_Artemis.NPC_Artemis_Field_01.Traits },
         { Name = "Arachne",         Traits = utils.map(PresetEventArgs.ArachneCostumeChoices.UpgradeOptions, function (n) return n.ItemName end) },
-        { Name = "Narcissus",       Traits = UnitSetData.NPC_Narcissus.NPC_Narcissus_01.Traits },
+        -- { Name = "Narcissus",       Traits = UnitSetData.NPC_Narcissus.NPC_Narcissus_01.Traits },
         { Name = "Echo",            Traits = UnitSetData.NPC_Echo.NPC_Echo_01.Traits },
         { Name = "Hades",           Traits = UnitSetData.NPC_Hades.NPC_Hades_Field_01.Traits },
         { Name = "Medea",           Traits = UnitSetData.NPC_Medea.NPC_Medea_01.Traits },
@@ -646,6 +667,11 @@ local function getBoonGivers()
         { Name = "Chaos",           Traits = LootSetData.Chaos.TrialUpgrade.PermanentTraits },
         { Name = "Deadalus Hammer", Traits = getWeaponUpgrades() }
     }
+    for _, n in pairs(boonGiverCache) do
+        for _, t in pairs(n.Traits or {}) do
+            traitGods[t] = n.Name
+        end
+    end
     return boonGiverCache
 end
 
@@ -674,7 +700,7 @@ function PractiseCurrentBuildMenu(appearing)
 
     for _, boonGiver in pairs(getBoonGivers()) do
         if boonGiver.Traits ~= nil then
-            if panel(boonGiver.Name, currentPanel, string.format("%sVoice", boonGiver.Name)) then
+            if panel(boonGiver.Name, currentPanel) then
                 if disabled then ImGui.BeginDisabled() end
                 ImGui.BeginTable(boonGiver.Name, 4)
                 ImGui.TableSetupColumn("Name")

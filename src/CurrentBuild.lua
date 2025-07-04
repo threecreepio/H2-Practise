@@ -366,7 +366,7 @@ local function showTraitName(traitName, isValid, rarity, stacks)
     )
 
     if ImGui.IsItemHovered() then
-        showTraitTooltip(traitName, rarity, stacks)
+        showTraitTooltip(traitName, rarity, stacks, true)
     end
 end
 

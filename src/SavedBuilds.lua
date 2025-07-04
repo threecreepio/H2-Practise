@@ -1,7 +1,19 @@
 local utils = import "./src/utils.lua"
 local Widgets = import "./src/Widgets.lua"
+local base64 = import "./src/base64.lua"
 
 local newSaveName = ""
+
+local function encode(value)
+    local bin = luabins.save(value)
+    return base64.encode(bin)
+end
+
+local function decode(value)
+    local bin = base64.decode(value)
+    local success, data = luabins.load(bin)
+    return success, data
+end
 
 local TraitCopyFields = MergeTables(
     DeepCopyTable(PersistentKeepsakeKeys),
@@ -257,8 +269,8 @@ local function savedBuildDetails(data, i)
     local ImGui = rom.ImGui
 
     if ImGui.Button("Copy to clipboard") then
-        local succeeded, documentOrErrorMessage = pcall(rom.toml.encode, data)
-        ImGui.SetClipboardText(documentOrErrorMessage)
+        local result = encode(data)
+        ImGui.SetClipboardText(result)
     end
     
     -- move the state up in the list
@@ -388,10 +400,14 @@ function PractiseSavedBuildsMenu()
         if PractiseStoredState.Blocking then ImGui.BeginDisabled() end
         if ImGui.Button("Import##save") and PractiseStoredState.Blocking ~= true then
             print("decode", importText)
-            local tbl = rom.toml.decode(importText, {})
-            importing = false
-            importText = ""
-            PractiseLoadState(tbl)
+            local success, tbl = decode(importText)
+            if success then
+                importing = false
+                importText = ""
+                PractiseLoadState(tbl)
+            else
+                importText = tostring(tbl) or ""
+            end
         end
         if PractiseStoredState.Blocking then ImGui.EndDisabled() end
 

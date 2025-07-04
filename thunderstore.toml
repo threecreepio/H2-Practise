@@ -20,6 +20,14 @@ readme = "./README.md"
 outdir = "./build"
 
 [[build.copy]]
+source = "./main.lua"
+target = "./main.lua"
+
+[[build.copy]]
+source = "./def.lua"
+target = "./def.lua"
+
+[[build.copy]]
 source = "./CHANGELOG.md"
 target = "./CHANGELOG.md"
 
@@ -29,7 +37,7 @@ target = "./LICENSE"
 
 [[build.copy]]
 source = "./src"
-target = "./"
+target = "./src"
 
 [publish]
 repository = "https://thunderstore.io"

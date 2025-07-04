@@ -17,6 +17,8 @@ local function clearCache()
     }
 end
 
+local rarities = {"Common", "Rare", "Epic", "Heroic", "Duo", "Legendary"}
+ 
 local cache = clearCache()
 
 local function traitNameColor(traitName, rarity, isValid)
@@ -238,7 +240,18 @@ local iconText = import './src/icon_to_text.lua'
 
 local function showTraitTooltip(traitName, rarity, stacks)
     local ImGui = rom.ImGui
+    local traitData = TraitData[traitName]
     ImGui.BeginTooltip()
+
+    if rarity == "None" then
+        local levels = traitData.RarityLevels or { Common = true }
+        for _, v in pairs(rarities) do
+            if levels[v] then
+                rarity = v
+                break
+            end
+        end
+    end
 
     local colors = traitNameColor(traitName, rarity, nil)
     ImGui.TextColored(
@@ -322,7 +335,6 @@ local function makeRaritySelect(traitName, currentRarity, stacks)
             end
         end
         
-        local rarities = {"Common", "Rare", "Epic", "Heroic", "Duo", "Legendary"}
         local traitRarities = traitData.RarityLevels or { Common = true }
         
         for i, rarity in ipairs(rarities) do

@@ -102,6 +102,15 @@ local function setupNewGame( args )
     CurrentRun.Hero.Mana = GetHeroMaxAvailableMana()
 end
 
+
+local function returnToCrossroads()
+    CurrentRun.Hero.IsDead = true
+    SetConfigOption({ Name = "FlipMapThings", Value = false })
+    SetConfigOption({ Name = "BlockGameplayTimer", Value = false })
+    thread(LoadMap, { Name = "Hub_PreRun", ResetBinks = true })
+    setupGameState()
+end
+
 local function startEncounter(targetConfig)
     local roomName = targetConfig.Room
 
@@ -149,11 +158,7 @@ local function startTeleport(targetConfig)
     local roomName = targetConfig.Room
 
     if roomName == "Hub_PreRun" then
-        SetConfigOption({ Name = "FlipMapThings", Value = false })
-        SetConfigOption({ Name = "BlockGameplayTimer", Value = false })
-        thread(LoadMap, { Name = roomName, ResetBinks = true })
-        setupGameState()
-        return
+        return returnToCrossroads()
     end
 
     local roomInfo = DeepCopyTable(RoomData[roomName]) or {}

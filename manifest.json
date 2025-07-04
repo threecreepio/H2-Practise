@@ -1,13 +1,13 @@
 {
-  "namespace": "SGG_Modding",
-  "name": "SJSON",
-  "description": "A plugin for handling .sjson files in ReturnOfModding.",
-  "version_number": "1.0.0",
+  "namespace": "Threecreepio",
+  "name": "Practise",
+  "description": "Adds some practise functionality",
+  "version_number": "0.1.2",
   "dependencies": [
-    "SGG_Modding-ENVY-1.0.0",
-    "SGG_Modding-ModUtil-1.0.0",
+    "SGG_Modding-ENVY-1.2.0",
+    "SGG_Modding-ModUtil-4.0.1",
     "SGG_Modding-SJSON-1.0.0"
   ],
-  "website_url": "https://github.com/SGG-Modding/SJSON-Plugin",
-  "FullName": "SGG_Modding-SJSON"
+  "website_url": "https://github.com/threecreepio/H2-Practise",
+  "FullName": "Threecreepio-Practise"
 }

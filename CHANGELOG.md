@@ -9,12 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] - 2025-07-04
 
-## [0.1.0] - 2025-07-04
-
 ### Added
 
 Initial release
 
 [unreleased]: https://github.com/threecreepio/H2-Practise/compare/0.1.0...HEAD
 [0.1.0]: https://github.com/threecreepio/H2-Practise/compare/0.1.0...0.1.0
-[0.1.0]: https://github.com/threecreepio/H2-Practise/compare/...0.1.0

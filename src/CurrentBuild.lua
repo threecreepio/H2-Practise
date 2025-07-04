@@ -100,7 +100,7 @@ local function applyTrait(traitName, rarity, stackNum)
     for _, currentTrait in ipairs( traits ) do
         if currentTrait.Name == traitName then
             RemoveTrait(CurrentRun.Hero, currentTrait.Name)
-        elseif traitData.Slot == currentTrait.Slot or (traitData.Slot == "Spell" and currentTrait.IsTalent) then
+        elseif traitData.Slot and (traitData.Slot == currentTrait.Slot or (traitData.Slot == "Spell" and currentTrait.IsTalent)) then
             RemoveTrait(CurrentRun.Hero, currentTrait.Name)
         elseif traitData.AltSlot and traitData.AltSlot == currentTrait.Slot then
             RemoveTrait(CurrentRun.Hero, currentTrait.Name)

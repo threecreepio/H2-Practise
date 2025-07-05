@@ -41,7 +41,7 @@ function PractisePerFrame()
         end
     end
 
-   RemoveInputBlock({ Name = "Practise" })
+    RemoveInputBlock({ Name = "Practise" })
     if rom.gui.is_open() then
         PractiseStoredState.Blocking = not IsInputAllowed()
         AddInputBlock({ Name = "Practise" })

@@ -162,11 +162,13 @@ local function threadPractiseLoadState(saveData)
     local obj = DeepCopyTable(saveData)
 
     if GameState.LastAwardTrait == "ReincarnationKeepsake" then
+        wait ( 0.02 )
         RemoveLastStand(CurrentRun.Hero, "ReincarnationKeepsake")
         CurrentRun.Hero.MaxLastStands = CurrentRun.Hero.MaxLastStands - 1
     end
 
     if obj.Keepsake ~= nil then
+        wait ( 0.02 )
         EquipKeepsake( CurrentRun.Hero, obj.Keepsake.TraitName, {
             FromLoot = true,
             SkipNewTraitHighlight = true,
@@ -175,6 +177,7 @@ local function threadPractiseLoadState(saveData)
     end
 
     if obj.Familiar ~= nil then
+        wait ( 0.02 )
         EquipFamiliar(nil, {
             Unit = CurrentRun.Hero,
             FamiliarName = obj.Familiar,
@@ -183,10 +186,12 @@ local function threadPractiseLoadState(saveData)
     end
 
     if obj.Weapon ~= nil then
+        wait ( 0.02 )
         equipWeaponKit( obj.Weapon, obj.WeaponAspect )
     end
 
     for _, traitInfo in pairs(obj.Traits) do
+        wait ( 0.02 )
         local o = traitInfo
         o.Unit = CurrentRun.Hero
         local prc = GetProcessedTraitData(o)
@@ -212,6 +217,7 @@ local function threadPractiseLoadState(saveData)
     end
 
     if obj.Spell ~= nil then
+        wait ( 0.02 )
         local spellData = nil
         for _, v in pairs( SpellData ) do
             if v.TraitName == obj.Spell.TraitName then
@@ -235,13 +241,16 @@ local function threadPractiseLoadState(saveData)
     end
 
     -- restore arcana
+        wait ( 0.02 )
     EquipMetaUpgrades( CurrentRun.Hero, { SkipTraitHighlight = true })
 
     if obj.RoomMana ~= 0 then
+        wait ( 0.02 )
         AddMaxMana(obj.RoomMana, {}, { Silent = true })
     end
     
     if obj.RoomHealth ~= 0 then
+        wait ( 0.02 )
         AddMaxHealth(obj.RoomHealth, {}, { Silent = true })
     end
 
@@ -258,10 +267,17 @@ local function threadPractiseLoadState(saveData)
     SetupCostume()
 	GatherAndEquipWeapons( CurrentRun )
 	CheckAttachmentTextures( CurrentRun.Hero )
+      
 end
 
 function PractiseLoadState(saveData)
-    return thread( threadPractiseLoadState, saveData )
+    local function run()
+        AddInputBlock({ Name = "PractiseLoadState" })
+        threadPractiseLoadState( saveData )
+        wait( 1 )
+        RemoveInputBlock({ Name = "PractiseLoadState" })
+    end
+    thread(run)
 end
 
 local function savedBuildDetails(data, i)
@@ -399,7 +415,6 @@ function PractiseSavedBuildsMenu()
 
         if PractiseStoredState.Blocking then ImGui.BeginDisabled() end
         if ImGui.Button("Import##save") and PractiseStoredState.Blocking ~= true then
-            print("decode", importText)
             local success, tbl = decode(importText)
             if success then
                 importing = false
@@ -460,7 +475,7 @@ function PractiseSavedBuildsMenu()
         if PractiseStoredState.Blocking then ImGui.EndDisabled() end
 
         -- load state
-        if buttonClicked then
+        if buttonClicked and not PractiseStoredState.Blocking then
             PlaySound({ Name = "/SFX/TimeSlowStart" })
             PractiseLoadState(data)
         end

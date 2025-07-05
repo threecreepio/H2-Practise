@@ -198,8 +198,9 @@ end
 
 local function describeRequirements(traitName)
     local ImGui = rom.ImGui
+
     local function makeDependentTable(name, options)
-        ImGui.BeginTable(name, 2)
+        ImGui.BeginTable(name, 2, 0, 250, 0, 0)
         ImGui.TableSetupColumn("God", rom.ImGuiTableColumnFlags.WidthFixed, 90.0)
         ImGui.TableSetupColumn("Boon")
         ImGui.TableHeadersRow()
@@ -224,7 +225,6 @@ local function describeRequirements(traitName)
 		end
         ImGui.EndTable()
     end
-	local valid = false
 	local dependencyTable = TraitRequirements[traitName]
 	if dependencyTable.OneOf ~= nil then
         ImGui.Text("Requires One Of:")
@@ -237,15 +237,11 @@ local function describeRequirements(traitName)
         makeDependentTable("RequiresTwoOf", dependencyTable.TwoOf)
 	end
 
-	if not valid and dependencyTable.OneFromEachSet ~= nil then
-		valid = true
+	if dependencyTable.OneFromEachSet ~= nil then
         ImGui.Text("Requires One Of Each:")
-        local line_height = ImGui.GetTextLineHeight() + 4
 		for i, traitSet in ipairs(dependencyTable.OneFromEachSet) do
             if i > 1 then ImGui.SameLine() end
-            ImGui.BeginChild("C_" .. tostring(i), 250, line_height * (1 + #traitSet), false)
             makeDependentTable("RequiresOneOf_" .. tostring(i), traitSet)
-            ImGui.EndChild()
 		end
 	end
 end

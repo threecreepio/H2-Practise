@@ -13,7 +13,8 @@ local function clearCache()
     return {
         Upgradeable = {},
         HasRequirements = {},
-        Tooltip = {}
+        Tooltip = {},
+        Eligible = {}
     }
 end
 
@@ -82,13 +83,14 @@ local function clearGameState()
 end
 
 local function canApplyTrait(traitName)
-    if TraitRequirements[traitName] == nil then
-        return true
-    end
     if cache.HasRequirements[traitName] == nil then
-        cache.HasRequirements[traitName] = game.HasTraitRequirements(traitName)
+        cache.HasRequirements[traitName] = not TraitRequirements[traitName] or game.HasTraitRequirements(traitName)
     end
-    return cache.HasRequirements[traitName]
+    if cache.Eligible[traitName] == nil then
+        local traitData = TraitData[traitName]
+        cache.Eligible[traitName] = traitData.GameStateRequirements == nil or IsGameStateEligible(nil, traitData.GameStateRequirements)
+    end
+    return cache.HasRequirements[traitName] == true and cache.Eligible[traitName] == true
 end
 
 local function clearTraitAnimations(traitData)

@@ -10,7 +10,7 @@ websiteUrl = "https://github.com/threecreepio/H2-Practise"
 containsNsfwContent = false
 
 [package.dependencies]
-SGG_Modding-ENVY = "1.2.0"
+LuaENVY-ENVY = "1.2.0"
 SGG_Modding-ModUtil = "4.0.1"
 SGG_Modding-SJSON = "1.0.0"
 

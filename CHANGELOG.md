@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Don't allow adding more selene hex points while the selection screen is opened.
+
 ## [0.1.3] - 2025-07-05
 
 - Prevent mashing load state too fast which crashed the game

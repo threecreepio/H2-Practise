@@ -611,7 +611,8 @@ local function makeSpellTable()
     end
     ImGui.EndTable()
 
-    if CurrentRun.Hero.SlottedSpell == nil then ImGui.BeginDisabled() end
+    local disabled = CurrentRun.Hero.SlottedSpell == nil or ActiveScreens.TalentScreen
+    if disabled then ImGui.BeginDisabled() end
     makeConsumableTable({
         {
             { Description = "+1 Hex", Consumable = "MinorTalentDrop" },
@@ -619,7 +620,7 @@ local function makeSpellTable()
             { Description = "+5 Hex", Consumable = "TalentBigDrop" },
         }
     })
-    if CurrentRun.Hero.SlottedSpell == nil then ImGui.EndDisabled() end
+    if disabled then ImGui.EndDisabled() end
 
 end
 

@@ -132,7 +132,9 @@ local function applyTrait(traitName, rarity, stackNum)
         end
     end
 
-    if rarity ~= "None" then
+    if rarity == "None" then
+        PlaySound({ Name =  "/SFX/Menu Sounds/RunHistoryClose" })
+    else
 		PlaySound({ Name =  "/SFX/Menu Sounds/GodBoonChoiceConfirm" })
         AddTraitToHero({
             FromLoot = true,
@@ -166,10 +168,14 @@ local function applySpell(spellData, rarity)
         end
     end
 
-
     PractiseRemoveTrait(spellData.TraitName)
-    if rarity == "None" then return end
-    
+    CurrentRun.Hero.SlottedSpell = nil
+    if rarity == "None" then
+	    PlaySound({ Name =  "/SFX/Menu Sounds/RunHistoryClose" })
+        return
+    end
+
+	PlaySound({ Name =  "/SFX/SeleneMoonPickup" })
     CurrentRun.Hero.SlottedSpell = DeepCopyTable( spellData )
     local prevChance = SpellTalentData.DuoChance
     SpellTalentData.DuoChance = 1
@@ -341,7 +347,8 @@ local function makeRaritySelect(traitName, currentRarity, stacks)
     if ImGui.BeginCombo(string.format("##%s:rarity", traitName), currentRarity or "Common") then
         if ImGui.Selectable("None", currentRarity == "None") then
             if "None" ~= currentRarity then
-                PractiseRemoveTrait(traitName)
+                changed = true
+                result = "None"
             end
         end
         
@@ -611,7 +618,7 @@ local function makeSpellTable()
     end
     ImGui.EndTable()
 
-    local disabled = CurrentRun.Hero.SlottedSpell == nil or ActiveScreens.TalentScreen
+    local disabled = CurrentRun.Hero.SlottedSpell == nil or CurrentRun.Hero.SlottedSpell.TraitName == nil or ActiveScreens.TalentScreen
     if disabled then ImGui.BeginDisabled() end
     makeConsumableTable({
         {

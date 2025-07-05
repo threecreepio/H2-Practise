@@ -57,7 +57,7 @@ local function clearGameState()
     local weapon = GetEquippedWeapon()
 
 	for i, traitInfo in pairs(currentTraits) do
-		RemoveTrait(CurrentRun.Hero, traitInfo.Name)
+		PractiseRemoveTrait(traitInfo.Name)
 	end
 
     CurrentRun.Hero.ReserveManaSources = {}
@@ -74,7 +74,7 @@ local function clearGameState()
 
     EquipPlayerWeapon(WeaponData[weapon], { LoadPackages = true })
 	EquipWeaponUpgrade( CurrentRun.Hero )
-    
+
     EquipMetaUpgrades( CurrentRun.Hero, { SkipTraitHighlight = true })
 	UpdateHeroTraitDictionary()
 	CheckActivatedTraits( CurrentRun.Hero )
@@ -91,13 +91,25 @@ local function canApplyTrait(traitName)
     return cache.HasRequirements[traitName]
 end
 
-local function removeTrait(traitName)
-    UnreserveMana(traitName)
+local function clearTraitAnimations(traitData)
+    local animations = {
+        "HexReadyFlash", "SpellReadyMelFx", "HexReadyFlashLargeA",
+        "HexReadyFlashLargeB", "HexReadyLoop"
+    }
+    if traitData.AnchorId ~= nil then
+        for _, anim in pairs(animations) do
+            StopAnimation({ Name = anim, DestinationId = traitData.AnchorId })
+        end
+    end
+end
+
+function PractiseRemoveTrait(traitName)
+    -- UnreserveMana(traitName)
     local traits = utils.map(CurrentRun.Hero.Traits, function (n) return n end)
-    for i, traitData in ipairs( traits ) do
+    for _, traitData in ipairs( traits ) do
         if traitData.Name == traitName then
-            PlaySound({ Name =  "/Leftovers/Menu Sounds/EmoteAnger" })
-            RemoveTrait(CurrentRun.Hero, traitData.Name)
+            clearTraitAnimations(traitData)
+            RemoveTraitData(CurrentRun.Hero, traitData)
             ShowCombatUI( "AutoHide" )
         end
     end
@@ -112,11 +124,11 @@ local function applyTrait(traitName, rarity, stackNum)
     local traits = utils.map(CurrentRun.Hero.Traits, function (n) return n end)
     for _, currentTrait in ipairs( traits ) do
         if currentTrait.Name == traitName then
-            RemoveTrait(CurrentRun.Hero, currentTrait.Name)
+            PractiseRemoveTrait(currentTrait.Name)
         elseif traitData.Slot and (traitData.Slot == currentTrait.Slot or (traitData.Slot == "Spell" and currentTrait.IsTalent)) then
-            RemoveTrait(CurrentRun.Hero, currentTrait.Name)
+            PractiseRemoveTrait(currentTrait.Name)
         elseif traitData.AltSlot and traitData.AltSlot == currentTrait.Slot then
-            RemoveTrait(CurrentRun.Hero, currentTrait.Name)
+            PractiseRemoveTrait(currentTrait.Name)
         end
     end
 
@@ -132,6 +144,7 @@ local function applyTrait(traitName, rarity, stackNum)
             SkipActivatedTraitUpdate = true,
         })
     end
+
     if reload then
         game.ReloadAllTraits()
         updateUI()
@@ -149,17 +162,17 @@ local function applySpell(spellData, rarity)
     local traits = utils.map(CurrentRun.Hero.Traits, function (n) return n end)
     for _, currentTrait in ipairs( traits ) do
         if currentTrait.Slot == "Spell" or currentTrait.IsTalent then
-            RemoveTrait(CurrentRun.Hero, currentTrait.Name)
+            PractiseRemoveTrait(currentTrait.Name)
         end
     end
 
 
-    removeTrait(spellData.TraitName)
+    PractiseRemoveTrait(spellData.TraitName)
     if rarity == "None" then return end
     
     CurrentRun.Hero.SlottedSpell = DeepCopyTable( spellData )
     local prevChance = SpellTalentData.DuoChance
-    SpellTalentData.DuoChance = 0
+    SpellTalentData.DuoChance = 1
     UpdateTalentPointInvestedCache()
     CurrentRun.Hero.SlottedSpell.Talents = CreateTalentTree( spellData )
     SpellTalentData.DuoChance = prevChance
@@ -332,7 +345,7 @@ local function makeRaritySelect(traitName, currentRarity, stacks)
     if ImGui.BeginCombo(string.format("##%s:rarity", traitName), currentRarity or "Common") then
         if ImGui.Selectable("None", currentRarity == "None") then
             if "None" ~= currentRarity then
-                removeTrait(traitName)
+                PractiseRemoveTrait(traitName)
             end
         end
         
@@ -610,7 +623,7 @@ local function makeSpellTable()
             { Description = "+5 Hex", Consumable = "TalentBigDrop" },
         }
     })
-    if CurrentRun.Hero.SlottedSpell == nil then ImGui.BeginDisabled() end
+    if CurrentRun.Hero.SlottedSpell == nil then ImGui.EndDisabled() end
 
 end
 
@@ -644,27 +657,27 @@ local boonGiverCache = nil
 local function getBoonGivers()
     if boonGiverCache ~= nil then return boonGiverCache end
     boonGiverCache = {
-        { Name = "Zeus",            Traits = getGodTraits("Zeus")              },
-        { Name = "Poseidon",        Traits = getGodTraits("Poseidon")          },
-        { Name = "Demeter",         Traits = getGodTraits("Demeter")           },
-        { Name = "Apollo",          Traits = getGodTraits("Apollo")            },
-        { Name = "Aphrodite",       Traits = getGodTraits("Aphrodite")         },
-        { Name = "Hephaestus",      Traits = getGodTraits("Hephaestus")        },
-        { Name = "Hestia",          Traits = getGodTraits("Hestia")            },
-        { Name = "Hera",            Traits = getGodTraits("Hera")              },
-        { Name = "Ares",            Traits = getGodTraits("Ares")              },
-        { Name = "Hermes",          Traits = getGodTraits("Hermes")            },
+        { Name = "Zeus",            Traits = getGodTraits("Zeus") },
+        { Name = "Hera",            Traits = getGodTraits("Hera") },
+        { Name = "Poseidon",        Traits = getGodTraits("Poseidon") },
+        { Name = "Demeter",         Traits = getGodTraits("Demeter") },
+        { Name = "Apollo",          Traits = getGodTraits("Apollo") },
+        { Name = "Aphrodite",       Traits = getGodTraits("Aphrodite") },
+        { Name = "Hephaestus",      Traits = getGodTraits("Hephaestus") },
+        { Name = "Hestia",          Traits = getGodTraits("Hestia") },
+        { Name = "Ares",            Traits = getGodTraits("Ares") },
         { Name = "Athena",          Traits = UnitSetData.NPC_Athena.NPC_Athena_01.Traits },
+        { Name = "Dionysus",        Traits = UnitSetData.NPC_Dionysus.NPC_Dionysus_01.Traits },
         { Name = "Artemis",         Traits = UnitSetData.NPC_Artemis.NPC_Artemis_Field_01.Traits },
+        { Name = "Hermes",          Traits = getGodTraits("Hermes") },
+        { Name = "Hades",           Traits = UnitSetData.NPC_Hades.NPC_Hades_Field_01.Traits },
+        { Name = "Chaos",           Traits = LootSetData.Chaos.TrialUpgrade.PermanentTraits },
         { Name = "Arachne",         Traits = utils.map(PresetEventArgs.ArachneCostumeChoices.UpgradeOptions, function (n) return n.ItemName end) },
         -- { Name = "Narcissus",       Traits = UnitSetData.NPC_Narcissus.NPC_Narcissus_01.Traits },
         { Name = "Echo",            Traits = UnitSetData.NPC_Echo.NPC_Echo_01.Traits },
-        { Name = "Hades",           Traits = UnitSetData.NPC_Hades.NPC_Hades_Field_01.Traits },
         { Name = "Medea",           Traits = UnitSetData.NPC_Medea.NPC_Medea_01.Traits },
         { Name = "Icarus",          Traits = UnitSetData.NPC_Icarus.NPC_Icarus_01.Traits },
         { Name = "Circe",           Traits = UnitSetData.NPC_Circe.NPC_Circe_01.Traits },
-        { Name = "Dionysus",        Traits = UnitSetData.NPC_Dionysus.NPC_Dionysus_01.Traits },
-        { Name = "Chaos",           Traits = LootSetData.Chaos.TrialUpgrade.PermanentTraits },
         { Name = "Deadalus Hammer", Traits = getWeaponUpgrades() }
     }
     for _, n in pairs(boonGiverCache) do

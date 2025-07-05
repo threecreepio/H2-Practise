@@ -18,6 +18,8 @@ end
 local TraitCopyFields = MergeTables(
     DeepCopyTable(PersistentKeepsakeKeys),
     {
+        "ActiveSlotOffsetIndex",
+        "RemainingUses",
         "RepeatedKeepsake",
         "RarityUpgradeData",
         "StartMaxMana",
@@ -52,7 +54,7 @@ local function fullyClearGameState()
     local currentTraits = utils.map(CurrentRun.Hero.Traits, function (n) return n end)
 
 	for _, traitInfo in pairs(currentTraits) do
-        RemoveTrait(CurrentRun.Hero, traitInfo.Name)
+        PractiseRemoveTrait(traitInfo.Name)
 	end
 
     ClearUpgrades()
@@ -79,14 +81,12 @@ function PractiseCreateState(name)
     obj.HealthBufferSources = MapState.HealthBufferSources
     obj.ReserveManaSources = CurrentRun.Hero.ReserveManaSources
 
-    obj.Hex = nil
     obj.Traits = {}
     obj.MetaUpgrades = {}
 
     if CurrentRun.Hero.SlottedSpell ~= nil then
-        local spell = CurrentRun.Hero.SlottedSpell
         obj.Spell = {}
-        obj.Spell.TraitName = spell.TraitName
+        obj.Spell.TraitName = CurrentRun.Hero.SlottedSpell
         obj.Spell.HasDuoTalent = CurrentRun.Hero.SlottedSpell.HasDuoTalent
         obj.Spell.Talents = CurrentRun.Hero.SlottedSpell.Talents
     end

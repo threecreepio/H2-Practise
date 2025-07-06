@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Delayed UI updates when loading a save state, fixed some graphical issue
 - Allow saving previous run state
 - Mark traits that cant be activated because of gamestate requirements
+- Make sure there is time on the clock if you select vow of time and do a boss encounter test
 
 ## [0.1.4] - 2025-07-05
 

@@ -40,7 +40,7 @@ end)
 
 ModUtil.Path.Wrap("EncounterEndPresentation", function( base )
     -- we want to prevent the initial map load after selecting an encounter
-    if CurrentRun.CurrentRoom.Softlock then
+    if CurrentRun.CurrentRoom.SingleEncounterRoom then
         AddTimerBlock( CurrentRun, "LeaveRoom" )
     end
     return base(  )
@@ -84,12 +84,17 @@ local function setupNewGame( args )
 	SetConfigOption({ Name = "FlipMapThings", Value = false })
 	SetConfigOption({ Name = "BlockGameplayTimer", Value = false })
     CurrentRun.PractiseMode = true
-    
+
     -- reload the state
     PractiseLoadState(saveData)
 
     -- then set up our new room
     local room = CreateRoom(args.RoomInfo, { })
+
+    -- force max vow of time remaining if we're doing a single encounter
+    if args.RoomInfo.SingleEncounterRoom then
+        CurrentRun.BiomeTime = MetaUpgradeData.BiomeSpeedShrineUpgrade.ChangeValue
+    end
 
     -- begin loading the new map
     RemoveInputBlock({ All = true })
@@ -146,7 +151,7 @@ local function startEncounter(targetConfig)
 	roomInfo.WellShopSpawnChance = 0.0
 	roomInfo.SurfaceShopSpawnChance = 0.0
 
-    roomInfo.Softlock = true
+    roomInfo.SingleEncounterRoom = true
 
 	thread(setupNewGame, {
         RoomInfo = roomInfo,

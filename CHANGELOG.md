@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow saving previous run state
 - Mark traits that cant be activated because of gamestate requirements
 - Make sure there is time on the clock if you select vow of time and do a boss encounter test
+- Remove ImGui ChildFrames which are apparently not very stable in Hades
+- Make savestates multi line to make them a little easier to copy/paste
 
 ## [0.1.4] - 2025-07-05
 

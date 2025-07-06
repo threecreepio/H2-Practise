@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Delayed UI updates when loading a save state, fixed some graphical issue
+- Allow saving previous run state
+- Mark traits that cant be activated because of gamestate requirements
+
 ## [0.1.4] - 2025-07-05
 
 - Don't allow adding more selene hex points while the selection screen is opened.

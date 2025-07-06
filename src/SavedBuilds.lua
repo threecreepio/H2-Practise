@@ -30,11 +30,9 @@ local TraitCopyFields = MergeTables(
 
 local function copyTraitFields(traitName, from, to)
     local traitInfo = TraitData[traitName]
-    for _, v in pairs(traitInfo.ExtractValues or {}) do
-        if v.Key ~= nil then
-            to[v.Key] = from[v.Key]
-        end
-    end
+    local fromCopy = ShallowCopyTable( from )
+    fromCopy.ExtractValues = traitInfo.ExtractValues
+    ExtractValues( CurrentRun.Hero, to, from, 1 )
     for _, k in pairs(TraitCopyFields) do
         to[k] = from[k]
     end

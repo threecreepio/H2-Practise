@@ -439,9 +439,12 @@ function PractiseSavedBuildsMenu()
 
     ImGui.SameLine()
 
+    local hasPrevRun = CurrentHubRoom ~= nil and PrevRun ~= nil and PrevRun.ActiveBounty ~= "Practise" and PrevRun.PractiseSaved ~= true
+    local saveBtnWidth = 48
+    if hasPrevRun then saveBtnWidth = 175 end
     ImGui.BeginTable("NewSave", 2)
     ImGui.TableSetupColumn("Name")
-    ImGui.TableSetupColumn("", rom.ImGuiTableColumnFlags.WidthFixed, 48.0)
+    ImGui.TableSetupColumn("", rom.ImGuiTableColumnFlags.WidthFixed, saveBtnWidth)
     ImGui.TableNextRow()
     ImGui.TableNextColumn()
     newSaveName = ImGui.InputText("Name", newSaveName or "", 100)
@@ -454,6 +457,19 @@ function PractiseSavedBuildsMenu()
         end
         savedBuilds[#savedBuilds + 1] = PractiseCreateState(name, CurrentRun)
         state.PendingCheckpoint = true
+    end
+    if hasPrevRun then
+        ImGui.SameLine()
+        if ImGui.Button("Save Last Run") then
+            local name = newSaveName
+            newSaveName = ""
+            if name == nil or name == "" then
+                name = "Quick save"
+            end
+            savedBuilds[#savedBuilds + 1] = PractiseCreateState(name, PrevRun)
+            PrevRun.PractiseSaved = true
+            state.PendingCheckpoint = true
+        end
     end
     ImGui.EndTable()
 

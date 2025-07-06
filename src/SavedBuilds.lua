@@ -6,10 +6,24 @@ local newSaveName = ""
 
 local function encode(value)
     local bin = luabins.save(value)
-    return base64.encode(bin)
+    local b64 = base64.encode(bin)
+    -- split into chunks
+    local chunks = {}
+    local linelength = 32
+    for i = 1, #b64, linelength do
+        table.insert(chunks, b64:sub(i, i + linelength - 1))
+    end
+    -- join the chunks with newlines
+    return table.concat(chunks, "\n")
 end
 
 local function decode(value)
+    -- remove all whitespace
+    value = value:gsub("%s+", "")
+    if value == nil or value == "" then
+        return false, "No data to decode"
+    end
+    -- decode the base64 string
     local bin = base64.decode(value)
     local success, data = luabins.load(bin)
     return success, data

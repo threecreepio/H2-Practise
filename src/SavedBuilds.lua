@@ -59,71 +59,75 @@ local function fullyClearGameState()
     ReloadAllTraits()
 end
 
-function PractiseCreateState(name)
+function PractiseCreateState(name, currentRun)
     local obj = {}
     obj.Version = 1
     obj.ID = utils.uuid()
+    obj.Name = name
     obj.CreatedAt = os.time()
 
     obj.RoomHealth = 0
     obj.RoomMana = 0
-    obj.Health = CurrentRun.Hero.MaxHealth
-    obj.Mana = CurrentRun.Hero.MaxMana
+    obj.Health = currentRun.Hero.MaxHealth
+    obj.Mana = currentRun.Hero.MaxMana
 
-    obj.Name = name
-    obj.Weapon = GetEquippedWeapon()
-    obj.WeaponAspect = GameState.LastWeaponUpgradeName[obj.Weapon]
-    obj.WeaponAspectRarity = TraitRarityData.WeaponRarityUpgradeOrder[GetWeaponUpgradeLevel(obj.WeaponAspect)]
-    obj.Familiar = GameState.EquippedFamiliar
-    obj.HealthBuffer = CurrentRun.Hero.HealthBuffer
+    obj.HealthBuffer = currentRun.Hero.HealthBuffer
+    obj.ReserveManaSources = currentRun.Hero.ReserveManaSources
+
     obj.HealthBufferSources = MapState.HealthBufferSources
-    obj.ReserveManaSources = CurrentRun.Hero.ReserveManaSources
 
     obj.Traits = {}
     obj.MetaUpgrades = {}
 
-    if CurrentRun.Hero.SlottedSpell ~= nil then
+    if currentRun.Hero.SlottedSpell ~= nil then
         obj.Spell = {}
-        obj.Spell.TraitName = CurrentRun.Hero.SlottedSpell
-        obj.Spell.HasDuoTalent = CurrentRun.Hero.SlottedSpell.HasDuoTalent
-        obj.Spell.Talents = CurrentRun.Hero.SlottedSpell.Talents
+        obj.Spell.TraitName = currentRun.Hero.SlottedSpell
+        obj.Spell.HasDuoTalent = currentRun.Hero.SlottedSpell.HasDuoTalent
+        obj.Spell.Talents = currentRun.Hero.SlottedSpell.Talents
     end
 
-    local ignoreTraits = {
-        RestedFamiliarResourceBonus = true
-    }
-    local familiarData = FamiliarData[obj.Familiar]
-    if familiarData ~= nil and familiarData.TraitNames ~= nil then
-        for _, n in pairs(familiarData.TraitNames) do
-            ignoreTraits[n] = true
+    local familiarTraits = {}
+    local ignoreTraits = { RestedFamiliarResourceBonus = true }
+    for familiarName, familiarData in pairs(FamiliarData) do
+        for _, n in pairs(familiarData.TraitNames or {}) do
+            familiarTraits[n] = familiarName
         end
     end
 
-	for i, traitInfo in pairs(CurrentRun.Hero.Traits) do
+	for i, traitInfo in pairs(currentRun.Hero.Traits) do
         local o = copyTraitFields(traitInfo.Name, traitInfo, {
             TraitName = traitInfo.Name,
             Rarity = traitInfo.Rarity,
             StackNum = traitInfo.StackNum,
         })
-        
+
         if ignoreTraits[traitInfo.Name] then
-            -- ignore traits
+            -- do nothing
+
+        elseif familiarTraits[traitInfo.Name] then
+            -- determine which familiar is active
+            obj.Familiar = familiarTraits[traitInfo.Name]
 
         elseif traitInfo.Slot == "Hex" then
             -- already handled selene spells
-             
+
         elseif traitInfo.MetaUpgrade then
             -- skip arcana
-        
-        elseif traitInfo.Slot == "Keepsake" then
+
+        elseif traitInfo.Slot == "Aspect" then
+            obj.Weapon = traitInfo.RequiredWeapon
+            obj.WeaponAspect = traitInfo.Name
+            obj.WeaponAspectRarity = traitInfo.Rarity
+
+        elseif traitInfo.Slot == "Keepsake" and traitInfo.TraitName == GameState.LastAwardTrait then
             obj.Keepsake = o
-        
+
         elseif traitInfo.Name == "RoomRewardMaxManaTrait" then
             obj.RoomMana = obj.RoomMana + traitInfo.PropertyChanges[1].ChangeValue
-        
+
         elseif traitInfo.Name == "RoomRewardMaxHealthTrait" or traitInfo.Name == "RoomRewardEmptyMaxHealthTrait" then
             obj.RoomHealth = obj.RoomHealth + traitInfo.PropertyChanges[1].ChangeValue
-        
+
         elseif traitInfo.Name ~= obj.Weapon
            and traitInfo.Name ~= obj.WeaponAspect
            and traitInfo.Name ~= obj.Keepsake
@@ -448,7 +452,7 @@ function PractiseSavedBuildsMenu()
         if name == nil or name == "" then
             name = "Quick save"
         end
-        savedBuilds[#savedBuilds + 1] = PractiseCreateState(name)
+        savedBuilds[#savedBuilds + 1] = PractiseCreateState(name, CurrentRun)
         state.PendingCheckpoint = true
     end
     ImGui.EndTable()

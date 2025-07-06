@@ -76,7 +76,7 @@ local function setupNewGame( args )
     GameState.PackagedBountyClearRecordTime.Practise = nil
 
     -- create a quick save before starting the run, since that will wipe everything
-    local saveData = PractiseCreateState("")
+    local saveData = PractiseCreateState("", CurrentRun)
 
     -- create a new run to ensure we leave hub mode
     setupGameState()

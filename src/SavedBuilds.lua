@@ -524,9 +524,7 @@ function PractiseSavedBuildsMenu()
 
         -- load details view
         if isOpen then
-            ImGui.BeginChildFrame(data.CreatedAt, w, 200)
             savedBuildDetails(data, i)
-            ImGui.EndChild()
         end
 
         ImGui.Dummy(0, 0)

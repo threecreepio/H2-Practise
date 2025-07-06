@@ -212,6 +212,7 @@ local function threadPractiseLoadState(saveData)
             SkipNewTraitHighlight = true,
             SkipQuestStatusCheck = true,
             SkipActivatedTraitUpdate = true,
+            SkipAddToHUD = true
         })
         copyTraitFields(addedTrait.Name, o, addedTrait)
 
@@ -235,6 +236,7 @@ local function threadPractiseLoadState(saveData)
         	UpdateTalentPointInvestedCache()
             AddTraitToHero({
                 Name = obj.Spell.TraitName,
+                SkipAddToHUD = true,
                 SkipNewTraitHighlight = true,
                 SkipQuestStatusCheck = true,
                 SkipActivatedTraitUpdate = true,
@@ -276,6 +278,7 @@ function PractiseLoadState(saveData)
     local function run()
         AddInputBlock({ Name = "PractiseLoadState" })
         threadPractiseLoadState( saveData )
+        ShowTraitUI( {} )
         wait( 1 )
         RemoveInputBlock({ Name = "PractiseLoadState" })
     end

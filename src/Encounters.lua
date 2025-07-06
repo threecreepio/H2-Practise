@@ -300,7 +300,7 @@ function PractiseEncountersMenu()
 
     ImGui.BeginTable("Minibosses", 3)
     ImGui.TableSetupColumn("Biome", rom.ImGuiTableColumnFlags.WidthFixed, 140.0)
-    ImGui.TableSetupColumn("Encounter")
+    ImGui.TableSetupColumn("Warden")
     ImGui.TableSetupColumn("", rom.ImGuiTableColumnFlags.WidthFixed, 90.0)
     ImGui.TableHeadersRow()
     for _, biome in pairs(minibosses) do

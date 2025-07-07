@@ -21,10 +21,9 @@ function DebugImGuiObject(object)
         end
     end
 
-    ImGui.BeginTable("Data", 3)
+    ImGui.BeginTable("Data", 2)
     ImGui.TableSetupColumn("Name", rom.ImGuiTableColumnFlags.NoHide)
     ImGui.TableSetupColumn("Value")
-    ImGui.TableSetupColumn("Edit", rom.ImGuiTableColumnFlags.WidthFixed, 50)
     ImGui.TableHeadersRow()
     for k, v in pairs(object) do
         draw_node(object, k, v)

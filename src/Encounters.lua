@@ -1,5 +1,5 @@
 
-ModUtil.Path.Wrap("EndRun", function( base, currentRun )
+ModUtil.Path.Wrap("EndRun", function( base, currentRun, ... )
     if currentRun.ActiveBounty == "Practise" then
         -- avoid registering more runs if it was a practise run
         CurrentRun.CurrentRoom = nil
@@ -7,11 +7,11 @@ ModUtil.Path.Wrap("EndRun", function( base, currentRun )
         PrevRun = CurrentRun
         game.CurrentRun = nil
     else
-        base( currentRun )
+        base( currentRun, ... )
     end
 end)
 
-ModUtil.Path.Wrap("Kill", function( base, victim, triggerArgs )
+ModUtil.Path.Wrap("Kill", function( base, victim, ... )
     -- if we die in practise, just jump back home without ending the run.
     if victim == CurrentRun.Hero and CurrentRun.ActiveBounty == "Practise" then
         CurrentRun.ActiveBounty = nil
@@ -20,30 +20,30 @@ ModUtil.Path.Wrap("Kill", function( base, victim, triggerArgs )
         LoadMap({ Name = "Hub_PreRun", ResetBinks = true })
         CurrentRun.ActiveBounty = nil
     else
-        return base(victim, triggerArgs)
+        return base(victim, ...)
     end
 end)
 
-ModUtil.Path.Wrap("OpenRunClearScreen", function( base )
+ModUtil.Path.Wrap("OpenRunClearScreen", function( base, ... )
     -- don't show the run clear screen if we're in practise mode
     if CurrentRun.ActiveBounty ~= "Practise" then
-        return base()
+        return base( ... )
     end
 end)
 
-ModUtil.Path.Wrap("LoadMap", function( base, arg )
+ModUtil.Path.Wrap("LoadMap", function( base, ... )
     -- we want to prevent the initial map load after selecting an encounter
     if CurrentRun.ActiveBounty ~= "Practise" or CurrentRun.PractiseMode == true then
-        return base( arg )
+        return base( ... )
     end
 end)
 
-ModUtil.Path.Wrap("EncounterEndPresentation", function( base )
+ModUtil.Path.Wrap("EncounterEndPresentation", function( base, ... )
     -- we want to prevent the initial map load after selecting an encounter
     if CurrentRun.CurrentRoom.SingleEncounterRoom then
         AddTimerBlock( CurrentRun, "LeaveRoom" )
     end
-    return base(  )
+    return base( ... )
 end)
 
 local function setupGameState()

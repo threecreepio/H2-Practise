@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2025-07-07
+
 - Fix for Daedalus Hammer select requiring a map change before updating
 
 ## [0.1.6] - 2025-07-07
@@ -47,7 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release
 
-[unreleased]: https://github.com/threecreepio/H2-Practise/compare/0.1.6...HEAD
+[unreleased]: https://github.com/threecreepio/H2-Practise/compare/0.1.7...HEAD
+[0.1.7]: https://github.com/threecreepio/H2-Practise/compare/0.1.6...0.1.7
 [0.1.6]: https://github.com/threecreepio/H2-Practise/compare/0.1.5...0.1.6
 [0.1.5]: https://github.com/threecreepio/H2-Practise/compare/0.1.4...0.1.5
 [0.1.4]: https://github.com/threecreepio/H2-Practise/compare/0.1.3...0.1.4

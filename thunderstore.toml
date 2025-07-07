@@ -4,7 +4,7 @@ schemaVersion = "0.1.0"
 [package]
 namespace = "Threecreepio"
 name = "Practise"
-versionNumber = "0.1.6"
+versionNumber = "0.1.7"
 description = "Adds some practise functionality"
 websiteUrl = "https://github.com/threecreepio/H2-Practise"
 containsNsfwContent = false

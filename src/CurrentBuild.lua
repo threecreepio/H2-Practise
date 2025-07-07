@@ -25,6 +25,7 @@ local cache = clearCache()
 
 local function godNameColor(godName)
     local clr = nil
+    if Color[godName] then return utils.toImGuiColor(Color[godName]) end
     if godName == "Ares" then clr = Color.AresDamageLight
     elseif godName == "Apollo" then clr = Color.ApolloDamageLight
     else clr = Color[tostring(godName) .. "Damage"] or Color[tostring(godName) .. "Voice"] or { 255, 255, 255, 255 }
@@ -634,8 +635,8 @@ end
 
 local openedPanel = nil
 
-local function panel(name, currentPanel)
-    local clr = godNameColor(name)
+local function panel(name, currentPanel, colorName)
+    local clr = godNameColor(colorName or name)
 
     rom.ImGui.Dummy(0, 0)
     local isOpen = name == currentPanel
@@ -682,7 +683,6 @@ local function getBoonGivers()
         { Name = "Medea",           Traits = UnitSetData.NPC_Medea.NPC_Medea_01.Traits },
         { Name = "Icarus",          Traits = UnitSetData.NPC_Icarus.NPC_Icarus_01.Traits },
         { Name = "Circe",           Traits = UnitSetData.NPC_Circe.NPC_Circe_01.Traits },
-        { Name = "Deadalus Hammer", Traits = getWeaponUpgrades() }
     }
     for _, n in pairs(boonGiverCache) do
         for _, t in pairs(n.Traits or {}) do
@@ -733,6 +733,22 @@ function PractiseCurrentBuildMenu(appearing)
             end
         end
     end
+
+    if panel("Daedalus Hammer", currentPanel) then
+        if disabled then ImGui.BeginDisabled() end
+        ImGui.BeginTable("DeadalusHammer", 4)
+        ImGui.TableSetupColumn("Name")
+        ImGui.TableSetupColumn("", rom.ImGuiTableColumnFlags.WidthStretch)
+        ImGui.TableSetupColumn("Rarity", rom.ImGuiTableColumnFlags.WidthFixed, 120.0)
+        ImGui.TableSetupColumn("Level", rom.ImGuiTableColumnFlags.WidthFixed, 70.0)
+        ImGui.TableHeadersRow()
+        for _, traitName in ipairs(getWeaponUpgrades()) do
+            makeTraitSelect(traitName)
+        end
+        ImGui.EndTable()
+        if disabled then ImGui.EndDisabled() end
+    end
+
 
     if panel("Selene Hex", currentPanel, "SeleneVoice") then
         if disabled then ImGui.BeginDisabled() end

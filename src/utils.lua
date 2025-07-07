@@ -101,7 +101,39 @@ local function uuid()
     })
 end
 
+local function isPositionUnsafe(height)
+    local ImGui = rom.ImGui
+    local _, y = ImGui.GetCursorScreenPos()
+    local scrH = rom.game.ScreenHeight
+    -- the game crashes if using a 'Begin'-component
+    -- when the cursor is too close to the bottom of the screen
+    -- no idea why, but, it is what it is
+    if y > scrH - 50 then
+        return true
+    end
+
+    if height == nil then
+        return false
+    end
+
+    local scrollY = ImGui.GetScrollY()
+    local windowHeight = ImGui.GetWindowHeight()
+    local cursorY = ImGui.GetCursorPosY()
+
+    -- The visible vertical range in the current window
+    local visible_min = scrollY
+    local visible_max = scrollY + windowHeight
+
+    -- The child's top and bottom positions in local window space
+    local child_top = cursorY + 1
+    local child_bottom = cursorY + height - 1
+
+    -- if the child will be entirely off screen, we can't draw it.
+    return child_bottom < visible_min or child_top > visible_max
+end
+
 return {
+    isPositionUnsafe = isPositionUnsafe,
     uuid = uuid,
     split = split,
     map = map,

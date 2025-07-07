@@ -161,6 +161,8 @@ local function Panel(name, args)
         panelState.PrevY = y
     end
 
+    ImGui.PopID()
+
     return isOpen == true, isButtonClicked, isClickingPanel
 end
 

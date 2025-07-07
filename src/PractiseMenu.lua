@@ -2,6 +2,7 @@ import "./src/PractiseStoredState.lua"
 import './src/SavedBuilds.lua'
 import './src/CurrentBuild.lua'
 import './src/Encounters.lua'
+local utils = import './src/utils.lua'
 
 local started = false
 local function sharedStart()
@@ -57,11 +58,9 @@ function PractiseMenu()
     ImGui.SetNextWindowSizeConstraints(500, 250, 2048, 2048)
     ImGui.SetNextWindowSize(600, 800, rom.ImGuiCond.FirstUseEver)
     if ImGui.Begin("Threecreepio Practise") then
-
-        if PractiseStoredState.PendingCheckpoint then
-            if ImGui.Button("Return to the Crossroads to save your changes") then
-                thread(LoadMap, { Name = "Hub_PreRun", ResetBinks = true })
-            end
+        if utils.isPositionUnsafe() then
+            ImGui.End()
+            return
         end
         
         ImGui.BeginTabBar("ThreecreepioPractise")

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Fix for Daedalus Hammer select requiring a map change before updating
+
 ## [0.1.6] - 2025-07-07
 
 - Fix a weird crash when a child has 0 effective height

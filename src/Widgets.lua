@@ -157,7 +157,7 @@ local function Panel(name, args)
         panelState.PrevY = nil
     end
 
-    if not isOpen                                then
+    if not isOpen then
         panelState.PrevY = y
     end
 

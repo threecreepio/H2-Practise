@@ -488,10 +488,7 @@ function PractiseSavedBuildsMenu()
         end
     end
     ImGui.EndTable()
-
     ImGui.Dummy(0, 0)
-
-    local w = ImGui.GetContentRegionAvail()
 
     for i=#savedBuilds,1,-1 do
         local data = savedBuilds[i]
@@ -524,7 +521,10 @@ function PractiseSavedBuildsMenu()
 
         -- load details view
         if isOpen then
-            savedBuildDetails(data, i)
+            if utils.SafeBeginChild("Save" .. tostring(data.ID), 0, 250) then
+                savedBuildDetails(data, i)
+                ImGui.EndChild()
+            end
         end
 
         ImGui.Dummy(0, 0)

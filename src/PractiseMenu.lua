@@ -58,37 +58,33 @@ function PractiseMenu()
     ImGui.SetNextWindowSizeConstraints(500, 250, 2048, 2048)
     ImGui.SetNextWindowSize(600, 800, rom.ImGuiCond.FirstUseEver)
     if ImGui.Begin("Threecreepio Practise") then
-        if utils.isPositionUnsafe() then
-            ImGui.End()
-            return
-        end
         
         ImGui.BeginTabBar("ThreecreepioPractise")
 
         local open, appearing = TabItem("Saved Builds")
         if open then
-            local w, h = ImGui.GetContentRegionAvail()
-            ImGui.BeginChild("Content", w, h, false)
-            PractiseSavedBuildsMenu(appearing)
-            ImGui.EndChild()
+            if utils.SafeBeginChild("Content", 0, 0, false) then
+                PractiseSavedBuildsMenu(appearing)
+                ImGui.EndChild()
+            end
             ImGui.EndTabItem()
         end
         
         local open, appearing = TabItem("Build")
         if open then
-            local w, h = ImGui.GetContentRegionAvail()
-            ImGui.BeginChild("Content", w, h, false)
-            PractiseCurrentBuildMenu(appearing)
-            ImGui.EndChild()
+            if utils.SafeBeginChild("Content", 0, 0, false) then
+                PractiseCurrentBuildMenu(appearing)
+                ImGui.EndChild()
+            end
             ImGui.EndTabItem()
         end
 
         local open, appearing = TabItem("Encounters")
         if open then
-            local w, h = ImGui.GetContentRegionAvail()
-            ImGui.BeginChild("Content", w, h, false)
-            PractiseEncountersMenu(appearing)
-            ImGui.EndChild()
+            if utils.SafeBeginChild("Content", 0, 0, false) then
+                PractiseEncountersMenu(appearing)
+                ImGui.EndChild()
+            end
             ImGui.EndTabItem()
         end
 

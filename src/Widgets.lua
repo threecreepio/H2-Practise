@@ -50,18 +50,37 @@ local function expandoTriangle(draw_list, x, y, open)
     end
 end
 
-local PanelStates = {}
+if WidgetStates == nil then
+    WidgetStates = {}
+    WidgetSeen = {}
+end
 
-local function Panel(name, args)
+function WidgetState()
+    local id = rom.ImGui.GetID("WidgetState")
+    if WidgetStates[id] == nil then
+        WidgetStates[id] = {}
+    end
+    WidgetSeen[id] = true
+    return WidgetStates[id]
+end
+
+function WidgetStateGC()
+    for id, _ in pairs(WidgetSeen) do
+        if WidgetSeen[id] == true then
+            WidgetSeen[id] = false
+        else
+            WidgetStates[id] = nil
+            WidgetSeen[id] = nil
+        end
+    end
+end
+
+function Panel(name, args)
     args = args or {}
     local ImGui = rom.ImGui
     local style = ImGui.GetStyle()
     ImGui.PushID(name)
-    local panelID = tostring(ImGui.GetID("Panel"))
-    if PanelStates[panelID] == nil then
-        PanelStates[panelID] = {}
-    end
-    local panelState = PanelStates[panelID]
+    local panelState = WidgetState()
     local wasOpen = args.WasOpen
     local isOpen = args.IsOpen
     args.WasOpen = isOpen
@@ -165,7 +184,3 @@ local function Panel(name, args)
 
     return isOpen == true, isButtonClicked, isClickingPanel
 end
-
-return {
-    Panel = Panel,
-}

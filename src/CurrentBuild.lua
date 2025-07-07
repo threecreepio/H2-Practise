@@ -1,6 +1,5 @@
 local utils = import "./src/utils.lua"
 local fmtstrings = import "./src/fmtstrings.lua"
-local Widgets = import "./src/Widgets.lua"
 
 local function updateUI()
     -- force refresh healthbar
@@ -106,7 +105,6 @@ local function clearTraitAnimations(traitData)
 end
 
 function PractiseRemoveTrait(traitName)
-    -- UnreserveMana(traitName)
     local traits = utils.map(CurrentRun.Hero.Traits, function (n) return n end)
     for _, traitData in ipairs( traits ) do
         if traitData.Name == traitName then
@@ -641,7 +639,7 @@ local function panel(name, currentPanel)
 
     rom.ImGui.Dummy(0, 0)
     local isOpen = name == currentPanel
-    local _, _, clickedPanel = Widgets.Panel(name, {
+    local _, _, clickedPanel = Panel(name, {
         Label = name,
         IsOpen = isOpen,
         Color = rom.ImGui.GetColorU32(clr[1], clr[2], clr[3], 0.5),

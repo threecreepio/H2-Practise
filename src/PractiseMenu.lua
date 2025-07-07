@@ -2,6 +2,7 @@ import "./src/PractiseStoredState.lua"
 import './src/SavedBuilds.lua'
 import './src/CurrentBuild.lua'
 import './src/Encounters.lua'
+import './src/Widgets.lua'
 local utils = import './src/utils.lua'
 
 local started = false
@@ -19,15 +20,14 @@ ModUtil.Path.Wrap("RequestSave", function( base, args )
     base( args )
 end)
 
-local isOpen = false
-local openPanel = nil
 local function TabItem(name)
+    local state = WidgetState()
     local open = rom.ImGui.BeginTabItem(name)
-    if openPanel == nil then open = true end
-    local isOpening = open and (openPanel ~= name or isOpen == false)
+    if state.openPanel == nil then open = true end
+    local isOpening = open and (state.openPanel ~= name or state.isOpen == false)
     if open then
-        openPanel = name
-        isOpen = true
+        state.openPanel = name
+        state.isOpen = true
     end
     return open, isOpening
 end
@@ -47,6 +47,7 @@ function PractisePerFrame()
         PractiseStoredState.Blocking = not IsInputAllowed()
         AddInputBlock({ Name = "Practise" })
         PractiseMenu()
+        WidgetStateGC()
     else
         isOpen = false
     end
@@ -57,8 +58,8 @@ function PractiseMenu()
     local ImGui = rom.ImGui
     ImGui.SetNextWindowSizeConstraints(500, 250, 2048, 2048)
     ImGui.SetNextWindowSize(600, 800, rom.ImGuiCond.FirstUseEver)
+
     if ImGui.Begin("Threecreepio Practise") then
-        
         ImGui.BeginTabBar("ThreecreepioPractise")
 
         local open, appearing = TabItem("Saved Builds")

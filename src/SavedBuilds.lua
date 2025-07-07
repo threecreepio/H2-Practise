@@ -1,5 +1,4 @@
 local utils = import "./src/utils.lua"
-local Widgets = import "./src/Widgets.lua"
 local base64 = import "./src/base64.lua"
 
 local newSaveName = ""
@@ -502,7 +501,7 @@ function PractiseSavedBuildsMenu()
         }
 
         if PractiseStoredState.Blocking then ImGui.BeginDisabled() end
-        local isOpen, buttonClicked, panelClicked = Widgets.Panel("Save_" .. id, args)
+        local isOpen, buttonClicked, panelClicked = Panel("Save_" .. id, args)
         if PractiseStoredState.Blocking then ImGui.EndDisabled() end
 
         -- load state

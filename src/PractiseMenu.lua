@@ -20,14 +20,16 @@ ModUtil.Path.Wrap("RequestSave", function( base, args )
     base( args )
 end)
 
+local isOpen = false
+
 local function TabItem(name)
     local state = WidgetState()
     local open = rom.ImGui.BeginTabItem(name)
     if state.openPanel == nil then open = true end
-    local isOpening = open and (state.openPanel ~= name or state.isOpen == false)
+    local isOpening = open and (state.openPanel ~= name or isOpen == false)
     if open then
         state.openPanel = name
-        state.isOpen = true
+        isOpen = true
     end
     return open, isOpening
 end

@@ -1,5 +1,6 @@
 local utils = import "./src/utils.lua"
 local fmtstrings = import "./src/fmtstrings.lua"
+local iconText = import './src/icon_to_text.lua'
 
 local function updateUI()
     -- force refresh healthbar
@@ -252,8 +253,6 @@ local function describeRequirements(traitName)
 		end
 	end
 end
-
-local iconText = import './src/icon_to_text.lua'
 
 local function showTraitTooltip(traitName, rarity, stacks, showRequirements)
     local ImGui = rom.ImGui
@@ -755,5 +754,4 @@ function PractiseCurrentBuildMenu(appearing)
         makeSpellTable()
         if disabled then ImGui.EndDisabled() end
     end
-    
 end
